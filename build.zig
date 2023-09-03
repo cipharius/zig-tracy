@@ -12,7 +12,7 @@ pub fn build(b: *std.Build) void {
 
     const tracy_enable = b.option(bool, "tracy-enable", "Enable profiling") orelse true;
     const tracy_on_demand = b.option(bool, "tracy-on-demand", "On-demand profiling") orelse false;
-    const tracy_callstack = b.option(bool, "tracy-callstack", "Enfore callstack collection for tracy regions") orelse false;
+    const tracy_callstack = b.option(bool, "tracy-callstack", "Enforce callstack collection for tracy regions") orelse false;
     const tracy_no_callstack = b.option(bool, "tracy-no-callstack", "Disable all callstack related functionality") orelse false;
     const tracy_no_callstack_inlines = b.option(bool, "tracy-no-callstack-inlines", "Disables the inline functions in callstacks") orelse false;
     const tracy_only_localhost = b.option(bool, "tracy-only-localhost", "Only listen on the localhost interface") orelse false;
@@ -32,8 +32,37 @@ pub fn build(b: *std.Build) void {
     const tracy_no_crash_handler = b.option(bool, "tracy-no-crash-handler", "Disable crash handling") orelse false;
     const tracy_timer_fallback = b.option(bool, "tracy-timer-fallback", "Use lower resolution timers") orelse false;
 
+    const options = b.addOptions();
+    options.addOption(bool, "tracy_enable", tracy_enable);
+    options.addOption(bool, "tracy_on_demand", tracy_on_demand);
+    options.addOption(bool, "tracy_callstack", tracy_callstack);
+    options.addOption(bool, "tracy_no_callstack", tracy_no_callstack);
+    options.addOption(bool, "tracy_no_callstack_inlines", tracy_no_callstack_inlines);
+    options.addOption(bool, "tracy_only_localhost", tracy_only_localhost);
+    options.addOption(bool, "tracy_no_broadcast", tracy_no_broadcast);
+    options.addOption(bool, "tracy_only_ipv4", tracy_only_ipv4);
+    options.addOption(bool, "tracy_no_code_transfer", tracy_no_code_transfer);
+    options.addOption(bool, "tracy_no_context_switch", tracy_no_context_switch);
+    options.addOption(bool, "tracy_no_exit", tracy_no_exit);
+    options.addOption(bool, "tracy_no_sampling", tracy_no_sampling);
+    options.addOption(bool, "tracy_no_verify", tracy_no_verify);
+    options.addOption(bool, "tracy_no_vsync_capture", tracy_no_vsync_capture);
+    options.addOption(bool, "tracy_no_frame_image", tracy_no_frame_image);
+    options.addOption(bool, "tracy_no_system_tracing", tracy_no_system_tracing);
+    options.addOption(bool, "tracy_delayed_init", tracy_delayed_init);
+    options.addOption(bool, "tracy_manual_lifetime", tracy_manual_lifetime);
+    options.addOption(bool, "tracy_fibers", tracy_fibers);
+    options.addOption(bool, "tracy_no_crash_handler", tracy_no_crash_handler);
+    options.addOption(bool, "tracy_timer_fallback", tracy_timer_fallback);
+
     const tracy_module = b.addModule("tracy", .{
         .source_file = .{ .path = "./src/tracy.zig" },
+        .dependencies = &.{
+            .{
+                .name = "tracy-options",
+                .module = options.createModule(),
+            },
+        },
     });
 
     const tracy_client = b.addStaticLibrary(.{
