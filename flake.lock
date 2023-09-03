@@ -1,0 +1,37 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1691368598,
+        "narHash": "sha256-ia7li22keBBbj02tEdqjVeLtc7ZlSBuhUk+7XTUFr14=",
+        "path": "/nix/store/631cgbs310h1rcix7zs171xzx7p2y97g-source",
+        "rev": "5a8e9243812ba528000995b294292d3b5e120947",
+        "type": "path"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "zig-source": "zig-source"
+      }
+    },
+    "zig-source": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-6GSsyjDQH7XWnHNrtYhdv4CT5x+RR0JD8o515bSpBQ0=",
+        "type": "tarball",
+        "url": "https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
