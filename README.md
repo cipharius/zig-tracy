@@ -19,6 +19,7 @@ Easy to use bindings for the tracy client C API.
 
 ## Todo / Ideas
 
+* Figure out why system sampling is broken
 * Tracy fibers support, would make sense paired with Zig async
 * Memory profiling support by creating custom allocator that instruments and acts as proxy
 * GPU zone markup support

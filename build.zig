@@ -25,7 +25,8 @@ pub fn build(b: *std.Build) void {
     const tracy_no_verify = b.option(bool, "tracy-no-verify", "Disable zone validation for C API") orelse false;
     const tracy_no_vsync_capture = b.option(bool, "tracy-no-vsync-capture", "Disable capture of hardware Vsync events") orelse false;
     const tracy_no_frame_image = b.option(bool, "tracy-no-frame-image", "Disable the frame image support and its thread") orelse false;
-    const tracy_no_system_tracing = b.option(bool, "tracy-no-system-tracing", "Disable systrace sampling") orelse false;
+    // NOTE For some reason system tracing on zig projects crashes tracy, will need to investigate
+    const tracy_no_system_tracing = b.option(bool, "tracy-no-system-tracing", "Disable systrace sampling") orelse true;
     const tracy_delayed_init = b.option(bool, "tracy-delayed-init", "Enable delayed initialization of the library (init on first call)") orelse false;
     const tracy_manual_lifetime = b.option(bool, "tracy-manual-lifetime", "Enable the manual lifetime management of the profile") orelse false;
     const tracy_fibers = b.option(bool, "tracy-fibers", "Enable fibers support") orelse false;
