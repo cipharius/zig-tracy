@@ -12,7 +12,7 @@ pub fn build(b: *std.Build) void {
 
     const tracy_enable = b.option(bool, "tracy-enable", "Enable profiling") orelse true;
     const tracy_on_demand = b.option(bool, "tracy-on-demand", "On-demand profiling") orelse false;
-    const tracy_callstack = b.option(bool, "tracy-callstack", "Enforce callstack collection for tracy regions") orelse false;
+    const tracy_callstack: ?u8 = b.option(u8, "tracy-callstack", "Enforce callstack collection for tracy regions");
     const tracy_no_callstack = b.option(bool, "tracy-no-callstack", "Disable all callstack related functionality") orelse false;
     const tracy_no_callstack_inlines = b.option(bool, "tracy-no-callstack-inlines", "Disables the inline functions in callstacks") orelse false;
     const tracy_only_localhost = b.option(bool, "tracy-only-localhost", "Only listen on the localhost interface") orelse false;
@@ -35,7 +35,7 @@ pub fn build(b: *std.Build) void {
     const options = b.addOptions();
     options.addOption(bool, "tracy_enable", tracy_enable);
     options.addOption(bool, "tracy_on_demand", tracy_on_demand);
-    options.addOption(bool, "tracy_callstack", tracy_callstack);
+    options.addOption(?u8, "tracy_callstack", tracy_callstack);
     options.addOption(bool, "tracy_no_callstack", tracy_no_callstack);
     options.addOption(bool, "tracy_no_callstack_inlines", tracy_no_callstack_inlines);
     options.addOption(bool, "tracy_only_localhost", tracy_only_localhost);
@@ -83,8 +83,9 @@ pub fn build(b: *std.Build) void {
         tracy_client.defineCMacro("TRACY_ENABLE", null);
     if (tracy_on_demand)
         tracy_client.defineCMacro("TRACY_ON_DEMAND", null);
-    if (tracy_callstack)
-        tracy_client.defineCMacro("TRACY_CALLSTACK", null);
+    if (tracy_callstack) |depth| {
+        tracy_client.defineCMacro("TRACY_CALLSTACK", "\"" ++ digits2(depth) ++ "\"");
+    }
     if (tracy_no_callstack)
         tracy_client.defineCMacro("TRACY_NO_CALLSTACK", null);
     if (tracy_no_callstack_inlines)
@@ -122,6 +123,14 @@ pub fn build(b: *std.Build) void {
     if (tracy_timer_fallback)
         tracy_client.defineCMacro("TRACY_TIMER_FALLBACK", null);
     b.installArtifact(tracy_client);
+}
+
+fn digits2(value: usize) [2]u8 {
+    return ("0001020304050607080910111213141516171819" ++
+        "2021222324252627282930313233343536373839" ++
+        "4041424344454647484950515253545556575859" ++
+        "6061626364656667686970717273747576777879" ++
+        "8081828384858687888990919293949596979899")[value * 2 ..][0..2].*;
 }
 
 const tracy_header_files = [_][2][]const u8{
