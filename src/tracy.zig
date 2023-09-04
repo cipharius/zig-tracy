@@ -205,16 +205,15 @@ pub inline fn messageColor(comptime msg: [:0]const u8, color: u32) void {
 
 const tracy_message_buffer_size = if (options.tracy_enable) 4096 else 0;
 threadlocal var tracy_message_buffer: [tracy_message_buffer_size]u8 = undefined;
-threadlocal var tracy_message_stream = std.io.fixedBufferStream(&tracy_message_buffer);
 
 pub inline fn print(comptime fmt: []const u8, args: anytype) void {
     if (!options.tracy_enable) return;
     const depth = options.tracy_callstack orelse 0;
 
-    tracy_message_stream.reset();
-    tracy_message_stream.writer().print(fmt, args) catch {};
+    var stream = std.io.fixedBufferStream(&tracy_message_buffer);
+    stream.writer().print(fmt, args) catch {};
 
-    const written = tracy_message_stream.getWritten();
+    const written = stream.getWritten();
     c.___tracy_emit_message(written.ptr, written.len, depth);
 }
 
@@ -222,20 +221,21 @@ pub inline fn printColor(comptime fmt: []const u8, args: anytype, color: u32) vo
     if (!options.tracy_enable) return;
     const depth = options.tracy_callstack orelse 0;
 
-    tracy_message_stream.reset();
-    tracy_message_stream.writer().print(fmt, args) catch {};
+    var stream = std.io.fixedBufferStream(&tracy_message_buffer);
+    stream.writer().print(fmt, args) catch {};
 
-    const written = tracy_message_stream.getWritten();
+    const written = stream.getWritten();
     c.___tracy_emit_messageC(written.ptr, written.len, color, depth);
 }
 
 pub inline fn printAppInfo(comptime fmt: []const u8, args: anytype) void {
     if (!options.tracy_enable) return;
 
-    tracy_message_stream.reset();
-    tracy_message_stream.writer().print(fmt, args) catch {};
+    var stream = std.io.fixedBufferStream(&tracy_message_buffer);
+    stream.reset();
+    stream.writer().print(fmt, args) catch {};
 
-    const written = tracy_message_stream.getWritten();
+    const written = stream.getWritten();
     c.___tracy_emit_message_appinfo(written.ptr, written.len);
 }
 
