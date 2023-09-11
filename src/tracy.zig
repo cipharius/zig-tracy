@@ -239,6 +239,101 @@ pub inline fn printAppInfo(comptime fmt: []const u8, args: anytype) void {
     c.___tracy_emit_message_appinfo(written.ptr, written.len);
 }
 
+pub const TracingAllocator = struct {
+    parent_allocator: std.mem.Allocator,
+    pool_name: ?[:0]const u8,
+
+    const Self = @This();
+
+    pub fn init(parent_allocator: std.mem.Allocator) Self {
+        return .{
+            .parent_allocator = parent_allocator,
+            .pool_name = null,
+        };
+    }
+
+    pub fn initNamed(comptime pool_name: [:0]const u8, parent_allocator: std.mem.Allocator) Self {
+        return .{
+            .parent_allocator = parent_allocator,
+            .pool_name = pool_name,
+        };
+    }
+
+    pub fn allocator(self: *Self) std.mem.Allocator {
+        return .{
+            .ptr = self,
+            .vtable = &.{
+                .alloc = alloc,
+                .resize = resize,
+                .free = free,
+            },
+        };
+    }
+
+    fn alloc(
+        ctx: *anyopaque,
+        len: usize,
+        ptr_align: u8,
+        ret_addr: usize,
+    ) ?[*]u8 {
+        const self: *Self = @ptrCast(@alignCast(ctx));
+        const result = self.parent_allocator.rawAlloc(len, ptr_align, ret_addr);
+        if (!options.tracy_enable) return result;
+
+        if (self.pool_name) |name| {
+            c.___tracy_emit_memory_alloc_named(result, len, 0, name.ptr);
+        } else {
+            c.___tracy_emit_memory_alloc(result, len, 0);
+        }
+
+        return result;
+    }
+
+    fn resize(
+        ctx: *anyopaque,
+        buf: []u8,
+        buf_align: u8,
+        new_len: usize,
+        ret_addr: usize,
+    ) bool {
+        const self: *Self = @ptrCast(@alignCast(ctx));
+        const result = self.parent_allocator.rawResize(buf, buf_align, new_len, ret_addr);
+        if (!result) return false;
+
+        if (!options.tracy_enable) return true;
+
+
+        if (self.pool_name) |name| {
+            c.___tracy_emit_memory_free_named(buf.ptr, 0, name.ptr);
+            c.___tracy_emit_memory_alloc_named(buf.ptr, new_len, 0, name.ptr);
+        } else {
+            c.___tracy_emit_memory_free(buf.ptr, 0);
+            c.___tracy_emit_memory_alloc(buf.ptr, new_len, 0);
+        }
+
+        return true;
+    }
+
+    fn free(
+        ctx: *anyopaque,
+        buf: []u8,
+        buf_align: u8,
+        ret_addr: usize,
+    ) void {
+        const self: *Self = @ptrCast(@alignCast(ctx));
+
+        if (options.tracy_enable) {
+            if (self.pool_name) |name| {
+                c.___tracy_emit_memory_free_named(buf.ptr, 0, name.ptr);
+            } else {
+                c.___tracy_emit_memory_free(buf.ptr, 0);
+            }
+        }
+
+        self.parent_allocator.rawFree(buf, buf_align, ret_addr);
+    }
+};
+
 fn digits2(value: usize) [2]u8 {
     return ("0001020304050607080910111213141516171819" ++
         "2021222324252627282930313233343536373839" ++

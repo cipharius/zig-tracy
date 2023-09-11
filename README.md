@@ -16,6 +16,7 @@ Easy to use bindings for the tracy client C API.
     * Frame markup
     * Plotting
     * Message printing
+    * Memory tracing via custom allocator
 
 ## Usage
 
@@ -67,7 +68,6 @@ pub fn main() void {
 
 * Figure out why system sampling is broken
 * Tracy fibers support, would make sense paired with Zig async
-* Memory profiling support by creating custom allocator that instruments and acts as proxy
 * GPU zone markup support
 * Make it possible to fetch this module via zig package manager
 * Test callstack support
