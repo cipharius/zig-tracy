@@ -4,9 +4,8 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const zig_tracy = b.anonymousDependency(
-        "./libs/zig-tracy",
-        @import("libs/zig-tracy/build.zig"),
+    const zig_tracy = b.dependency(
+        "zig-tracy",
         .{
             .target = target,
             .optimize = optimize,
