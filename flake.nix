@@ -3,7 +3,7 @@
 
   inputs = {
     zig-source = {
-      url = "https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz";
+      url = "https://ziglang.org/builds/zig-linux-x86_64-0.12.0-dev.1664+8ca4a5240.tar.xz";
       flake = false;
     };
   };
@@ -16,9 +16,9 @@
   let
     default_system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${default_system};
-    zig_0_11_0 = pkgs.stdenv.mkDerivation rec {
+    zig_0_12_0_rc = pkgs.stdenv.mkDerivation rec {
       pname = "zig";
-      version = "0.11.0";
+      version = "0.12.0";
       src = zig-source.outPath;
 
       installPhase = ''
@@ -38,7 +38,7 @@
   in {
     devShell.${default_system} = pkgs.mkShell {
       nativeBuildInputs = [
-        zig_0_11_0
+        zig_0_12_0_rc
         pkgs.lldb_16
       ];
     };

@@ -1,4 +1,19 @@
 .{
     .name = "zig-tracy",
-    .version = "0.0.2",
+    .version = "0.0.3",
+    .minimum_zig_version = "0.12.0-dev.1664+8ca4a5240",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "example",
+        "README.md",
+        "LICENSE"
+    },
+    .dependencies = .{
+        .tracy_src = .{
+            .url = "https://github.com/wolfpld/tracy/archive/refs/tags/v0.10.tar.gz",
+            .hash = "12202aac930cebaf2b57f443cacc2483478580a72f1316b4f0a720ddd91246fce69d"
+        }
+    }
 }
