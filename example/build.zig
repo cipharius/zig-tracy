@@ -4,8 +4,8 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const zig_tracy = b.dependency(
-        "zig-tracy",
+    const tracy = b.dependency(
+        "tracy",
         .{
             .target = target,
             .optimize = optimize,
@@ -18,8 +18,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    exe.addModule("tracy", zig_tracy.module("tracy"));
-    exe.linkLibrary(zig_tracy.artifact("tracy"));
+    exe.addModule("tracy", tracy.module("tracy"));
+    exe.linkLibrary(tracy.artifact("tracy"));
     exe.linkLibCpp();
     b.installArtifact(exe);
 

@@ -1,10 +1,16 @@
 .{
     .name = "zig-tracy-example",
     .version = "0.0.1",
+    .minimum_zig_version = "0.12.0-dev.1664+8ca4a5240",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src"
+    },
     .dependencies = .{
         .tracy = .{
-            .url = "https://github.com/cipharius/zig-tracy/archive/refs/tags/v0.0.2.tar.gz",
-            .hash = "", // TODO To be filled out
+            .url = "https://github.com/cipharius/zig-tracy/archive/refs/tags/v0.0.3.tar.gz",
+            .hash = "1220b77095b00bcec0a800ac419747e25f47aa4e2a931082c531cbc7f99bb8b6a694",
         },
     },
 }

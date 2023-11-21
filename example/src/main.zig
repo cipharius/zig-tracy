@@ -50,14 +50,14 @@ fn otherThread() void {
         const zone = tracy.initZone(@src(), .{ .name = "IO loop" });
         defer zone.deinit();
 
-        stdout.print("Enter string: ", .{}) catch unreachable;
+        stdout.print("Enter string: ", .{}) catch break;
 
         const stream_zone = tracy.initZone(@src(), .{ .name = "Writer.streamUntilDelimiter" });
-        stdin.streamUntilDelimiter(stack.writer(), '\n', null) catch unreachable;
+        stdin.streamUntilDelimiter(stack.writer(), '\n', null) catch break;
         stream_zone.deinit();
 
         const toowned_zone = tracy.initZone(@src(), .{ .name = "ArrayList.toOwnedSlice" });
-        var str = stack.toOwnedSlice() catch unreachable;
+        const str = stack.toOwnedSlice() catch break;
         defer tracing_allocator.allocator().free(str);
         toowned_zone.deinit();
 
@@ -65,6 +65,6 @@ fn otherThread() void {
         std.mem.reverse(u8, str);
         reverse_zone.deinit();
 
-        stdout.print("Reversed: {s}\n", .{str}) catch unreachable;
+        stdout.print("Reversed: {s}\n", .{str}) catch break;
     }
 }
