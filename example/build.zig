@@ -4,13 +4,10 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const tracy = b.dependency(
-        "tracy",
-        .{
-            .target = target,
-            .optimize = optimize,
-        }
-    );
+    const tracy = b.dependency("tracy", .{
+        .target = target,
+        .optimize = optimize,
+    });
 
     const exe = b.addExecutable(.{
         .name = "tracy-example",

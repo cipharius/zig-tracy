@@ -58,7 +58,7 @@ pub inline fn frameMarkNamed(comptime name: [:0]const u8) void {
     c.___tracy_emit_frame_mark(name);
 }
 
-const DiscontinuousFrame = struct{
+const DiscontinuousFrame = struct {
     name: [:0]const u8,
 
     pub inline fn deinit(frame: *const DiscontinuousFrame) void {
@@ -78,13 +78,13 @@ pub inline fn frameImage(image: *anyopaque, width: u16, height: u16, offset: u8,
     c.___tracy_emit_frame_mark_image(image, width, height, offset, @as(c_int, @intFromBool(flip)));
 }
 
-pub const ZoneOptions = struct{
+pub const ZoneOptions = struct {
     active: bool = true,
     name: ?[]const u8 = null,
     color: ?u32 = null,
 };
 
-const ZoneContext = extern struct{
+const ZoneContext = extern struct {
     ctx: c.___tracy_c_zone_context,
 
     pub inline fn deinit(zone: *const ZoneContext) void {
@@ -117,7 +117,7 @@ pub inline fn initZone(comptime src: std.builtin.SourceLocation, comptime opts: 
     if (!options.tracy_enable) return .{ .ctx = 0 };
     const active: c_int = @intFromBool(opts.active);
 
-    const static = struct{
+    const static = struct {
         var src_loc = c.___tracy_source_location_data{
             .name = if (opts.name) |name| name.ptr else null,
             .function = src.fn_name.ptr,
@@ -166,14 +166,14 @@ pub inline fn plot(comptime T: type, comptime name: [:0]const u8, value: T) void
     }
 }
 
-pub const PlotType = enum(c_int){
+pub const PlotType = enum(c_int) {
     Number,
     Memory,
     Percentage,
     Watt,
 };
 
-pub const PlotConfig = struct{
+pub const PlotConfig = struct {
     plot_type: PlotType,
     step: c_int,
     fill: c_int,
@@ -302,7 +302,6 @@ pub const TracingAllocator = struct {
 
         if (!options.tracy_enable) return true;
 
-
         if (self.pool_name) |name| {
             c.___tracy_emit_memory_free_named(buf.ptr, 0, name.ptr);
             c.___tracy_emit_memory_alloc_named(buf.ptr, new_len, 0, name.ptr);
@@ -341,4 +340,3 @@ fn digits2(value: usize) [2]u8 {
         "6061626364656667686970717273747576777879" ++
         "8081828384858687888990919293949596979899")[value * 2 ..][0..2].*;
 }
-

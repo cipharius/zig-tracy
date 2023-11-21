@@ -8,12 +8,12 @@
         "src",
         "example",
         "README.md",
-        "LICENSE"
+        "LICENSE",
     },
     .dependencies = .{
         .tracy_src = .{
             .url = "https://github.com/wolfpld/tracy/archive/refs/tags/v0.10.tar.gz",
-            .hash = "12202aac930cebaf2b57f443cacc2483478580a72f1316b4f0a720ddd91246fce69d"
-        }
-    }
+            .hash = "12202aac930cebaf2b57f443cacc2483478580a72f1316b4f0a720ddd91246fce69d",
+        },
+    },
 }
