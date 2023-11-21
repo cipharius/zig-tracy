@@ -20,54 +20,17 @@ Easy to use bindings for the tracy client C API.
 
 ## Usage
 
-* Get a local checkout of this repository (no zig package manager support just yet)
-* Register this package as anonymous dependency and install it in your compile step. Example:
+See `./example` for how to set up `zig-tracy` with a Zig project.
 
-```zig
-const zig_tracy = b.anonymousDependency(
-    "./libs/zig-tracy",
-    @import("libs/zig-tracy/build.zig"),
-    .{
-        .target = target,
-        .optimize = optimize,
-    }
-);
-
-// ...
-
-exe.addModule("tracy", zig_tracy.module("tracy"));
-exe.linkLibrary(zig_tracy.artifact("tracy"));
-```
-
-* Import the tracy module and add markup to your zig code. Example:
-
-```zig
-const std = @import("std");
-const tracy = @import("tracy");
-
-fn hello() void {
-    const zone = tracy.initZone(@src(), .{ .name = "hello" });
-    defer zone.deinit();
-
-    tracy.message("Hello world!");
-}
-
-pub fn main() void {
-    tracy.setThreadName("Main");
-    while (true) {
-        tracy.frameMark();
-        hello();
-        std.time.sleep(100);
-    }
-}
-```
-
-* Use tracy UI/server to connect to the machine and explore the profiler data
+In summary:
+* Declare `zig-tracy` as a dependency in the `build.zig.zon`
+* Configure `zig-tracy` dependency in `build.zig`
+* Instrument the code using the provided Zig module
+* Use Tracy UI/server to connect to the instrumented Zig application and explore the profiler data
 
 ## Todo / Ideas
 
 * Figure out why system sampling is broken
 * Tracy fibers support, would make sense paired with Zig async
 * GPU zone markup support
-* Make it possible to fetch this module via zig package manager
 * Test callstack support
