@@ -18,7 +18,7 @@
     pkgs = nixpkgs.legacyPackages.${default_system};
     zig_0_12_0_rc = pkgs.stdenv.mkDerivation rec {
       pname = "zig";
-      version = "0.12.0";
+      version = "0.12.0-dev.1664+8ca4a5240";
       src = zig-source.outPath;
 
       installPhase = ''
