@@ -1,11 +1,5 @@
 const std = @import("std");
 
-const tracy_version = std.SemanticVersion{
-    .major = 0,
-    .minor = 9,
-    .patch = 2,
-};
-
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -59,8 +53,8 @@ pub fn build(b: *std.Build) void {
     const tracy_src = b.dependency("tracy_src", .{});
 
     const tracy_module = b.addModule("tracy", .{
-        .source_file = .{ .path = "./src/tracy.zig" },
-        .dependencies = &.{
+        .root_source_file = .{ .path = "./src/tracy.zig" },
+        .imports = &.{
             .{
                 .name = "tracy-options",
                 .module = options.createModule(),
@@ -68,12 +62,17 @@ pub fn build(b: *std.Build) void {
         },
     });
 
+    tracy_module.addIncludePath(tracy_src.path("./public"));
+
     const tracy_client = b.addStaticLibrary(.{
         .name = "tracy",
         .target = target,
         .optimize = optimize,
     });
-    tracy_client.addModule("tracy", tracy_module);
+    if (target.result.os.tag == .windows) {
+        tracy_client.linkSystemLibrary("dbghelp");
+        tracy_client.linkSystemLibrary("ws2_32");
+    }
     tracy_client.linkLibCpp();
     tracy_client.addCSourceFile(.{
         .file = tracy_src.path("./public/TracyClient.cpp"),
