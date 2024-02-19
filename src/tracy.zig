@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const options = @import("tracy-options");
 const c = @cImport({
     if (options.tracy_enable) @cDefine("TRACY_ENABLE", {});
@@ -22,6 +23,7 @@ const c = @cImport({
     if (options.tracy_fibers) @cDefine("TRACY_FIBERS", {});
     if (options.tracy_no_crash_handler) @cDefine("TRACY_NO_CRASH_HANDLER", {});
     if (options.tracy_timer_fallback) @cDefine("TRACY_TIMER_FALLBACK", {});
+    if (options.shared and builtin.os.tag == .windows) @cDefine("TRACY_IMPORTS", {});
 
     @cInclude("tracy/TracyC.h");
 });
