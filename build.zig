@@ -26,6 +26,7 @@ pub fn build(b: *std.Build) void {
     const tracy_fibers = b.option(bool, "tracy_fibers", "Enable fibers support") orelse false;
     const tracy_no_crash_handler = b.option(bool, "tracy_no_crash_handler", "Disable crash handling") orelse false;
     const tracy_timer_fallback = b.option(bool, "tracy_timer_fallback", "Use lower resolution timers") orelse false;
+    const shared = b.option(bool, "shared", "Build the tracy client as a shared libary") orelse false;
 
     const options = b.addOptions();
     options.addOption(bool, "tracy_enable", tracy_enable);
@@ -49,6 +50,7 @@ pub fn build(b: *std.Build) void {
     options.addOption(bool, "tracy_fibers", tracy_fibers);
     options.addOption(bool, "tracy_no_crash_handler", tracy_no_crash_handler);
     options.addOption(bool, "tracy_timer_fallback", tracy_timer_fallback);
+    options.addOption(bool, "shared", shared);
 
     const tracy_src = b.dependency("tracy_src", .{});
 
@@ -64,11 +66,16 @@ pub fn build(b: *std.Build) void {
 
     tracy_module.addIncludePath(tracy_src.path("./public"));
 
-    const tracy_client = b.addStaticLibrary(.{
+    const tracy_client = if (shared) b.addSharedLibrary(.{
+        .name = "tracy",
+        .target = target,
+        .optimize = optimize,
+    }) else b.addStaticLibrary(.{
         .name = "tracy",
         .target = target,
         .optimize = optimize,
     });
+
     if (target.result.os.tag == .windows) {
         tracy_client.linkSystemLibrary("dbghelp");
         tracy_client.linkSystemLibrary("ws2_32");
@@ -127,6 +134,8 @@ pub fn build(b: *std.Build) void {
         tracy_client.defineCMacro("TRACY_NO_CRASH_HANDLER", null);
     if (tracy_timer_fallback)
         tracy_client.defineCMacro("TRACY_TIMER_FALLBACK", null);
+    if (shared and target.result.os.tag == .windows)
+        tracy_client.defineCMacro("TRACY_EXPORTS", null);
     b.installArtifact(tracy_client);
 }
 
