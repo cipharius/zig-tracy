@@ -3,7 +3,7 @@
 
   inputs = {
     zig-source = {
-      url = "https://ziglang.org/builds/zig-linux-x86_64-0.12.0-dev.1664+8ca4a5240.tar.xz";
+      url = "https://ziglang.org/builds/zig-linux-x86_64-0.12.0-dev.2811+3cafb9655.tar.xz";
       flake = false;
     };
   };
