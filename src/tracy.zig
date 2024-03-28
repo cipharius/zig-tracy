@@ -86,7 +86,7 @@ pub const ZoneOptions = struct {
     color: ?u32 = null,
 };
 
-const ZoneContext = extern struct {
+const ZoneContext = if (options.tracy_enable) extern struct {
     ctx: c.___tracy_c_zone_context,
 
     pub inline fn deinit(zone: *const ZoneContext) void {
@@ -113,10 +113,16 @@ const ZoneContext = extern struct {
         if (!options.tracy_enable) return;
         c.___tracy_emit_zone_value(zone.ctx, zone_value);
     }
+} else struct {
+    pub inline fn deinit(_: *const ZoneContext) void {}
+    pub inline fn name(_: *const ZoneContext, _: []const u8) void {}
+    pub inline fn text(_: *const ZoneContext, _: []const u8) void {}
+    pub inline fn color(_: *const ZoneContext, _: u32) void {}
+    pub inline fn value(_: *const ZoneContext, _: u64) void {}
 };
 
 pub inline fn initZone(comptime src: std.builtin.SourceLocation, comptime opts: ZoneOptions) ZoneContext {
-    if (!options.tracy_enable) return .{ .ctx = 0 };
+    if (!options.tracy_enable) return .{};
     const active: c_int = @intFromBool(opts.active);
 
     const static = struct {
