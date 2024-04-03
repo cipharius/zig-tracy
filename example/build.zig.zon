@@ -8,9 +8,6 @@
         "src",
     },
     .dependencies = .{
-        .tracy = .{
-            .url = "https://github.com/cipharius/zig-tracy/archive/refs/tags/v0.0.3.tar.gz",
-            .hash = "1220b77095b00bcec0a800ac419747e25f47aa4e2a931082c531cbc7f99bb8b6a694",
-        },
+        .tracy = .{ .path = ".." },
     },
 }

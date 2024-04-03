@@ -1,26 +1,26 @@
 const std = @import("std");
 const tracy = @import("tracy");
 
-var finalise_threads = std.atomic.Atomic(bool).init(false);
+var finalise_threads = std.atomic.Value(bool).init(false);
 
 fn handleSigInt(_: c_int) callconv(.C) void {
-    finalise_threads.store(true, .Release);
+    finalise_threads.store(true, .release);
 }
 
 pub fn main() !void {
     tracy.setThreadName("Main");
     defer tracy.message("Graceful main thread exit");
 
-    try std.os.sigaction(std.os.SIG.INT, &.{
+    try std.posix.sigaction(std.posix.SIG.INT, &.{
         .handler = .{ .handler = handleSigInt },
-        .mask = std.os.empty_sigset,
+        .mask = std.posix.empty_sigset,
         .flags = 0,
     }, null);
 
     const other_thread = try std.Thread.spawn(.{}, otherThread, .{});
     defer other_thread.join();
 
-    while (!finalise_threads.load(.Acquire)) {
+    while (!finalise_threads.load(.acquire)) {
         tracy.frameMark();
 
         const zone = tracy.initZone(@src(), .{ .name = "Important work" });
@@ -46,7 +46,7 @@ fn otherThread() void {
     const stdin = std.io.getStdIn().reader();
     const stdout = std.io.getStdOut().writer();
 
-    while (!finalise_threads.load(.Acquire)) {
+    while (!finalise_threads.load(.acquire)) {
         const zone = tracy.initZone(@src(), .{ .name = "IO loop" });
         defer zone.deinit();
 
