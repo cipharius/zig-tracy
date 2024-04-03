@@ -22,14 +22,14 @@
     "zig-source": {
       "flake": false,
       "locked": {
-        "lastModified": 1708302908,
-        "narHash": "sha256-PxdblSpuc5k2xFT4uGbTD272OEgBPRtIyJDLe4Z8308=",
+        "lastModified": 1712150963,
+        "narHash": "sha256-dMfSyQckPok5AyNeMWyJzSq6ow+K5GCoKiyt9tM1UdM=",
         "type": "tarball",
-        "url": "https://ziglang.org/builds/zig-linux-x86_64-0.12.0-dev.2811%2B3cafb9655.tar.xz"
+        "url": "https://ziglang.org/builds/zig-linux-x86_64-0.12.0-dev.3522%2Bb88ae8dbd.tar.xz"
       },
       "original": {
         "type": "tarball",
-        "url": "https://ziglang.org/builds/zig-linux-x86_64-0.12.0-dev.2811%2B3cafb9655.tar.xz"
+        "url": "https://ziglang.org/builds/zig-linux-x86_64-0.12.0-dev.3522%2Bb88ae8dbd.tar.xz"
       }
     }
   },
