@@ -1,7 +1,7 @@
 .{
     .name = "zig-tracy-example",
     .version = "0.0.1",
-    .minimum_zig_version = "0.12.0-dev.1664+8ca4a5240",
+    .minimum_zig_version = "0.12.0-dev.3686+3adfaf91f",
     .paths = .{
         "build.zig",
         "build.zig.zon",

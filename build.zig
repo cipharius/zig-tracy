@@ -87,7 +87,7 @@ pub fn build(b: *std.Build) void {
     });
     inline for (tracy_header_files) |header| {
         tracy_client.installHeader(
-            tracy_src.path(header[0]).getPath(b),
+            tracy_src.path(header[0]),
             header[1],
         );
     }
