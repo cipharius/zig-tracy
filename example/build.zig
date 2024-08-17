@@ -7,7 +7,7 @@ pub fn build(b: *std.Build) void {
     // For example project tracy_enable defaults to true, but in real world projects tracy should never be on by default!
     const tracy_enable = b.option(bool, "tracy_enable", "Enable profiling") orelse true;
 
-    const tracy = b.dependency("tracy", .{
+    const tracy = b.dependency("zig-tracy", .{
         .target = target,
         .optimize = optimize,
         .tracy_enable = tracy_enable,
