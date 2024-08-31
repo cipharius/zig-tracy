@@ -156,12 +156,12 @@ pub inline fn plot(comptime T: type, comptime name: [:0]const u8, value: T) void
 
     const type_info = @typeInfo(T);
     switch (type_info) {
-        .Int => |int_type| {
-            if (int_type.bits > 64) @compileError("Too large int to plot");
-            if (int_type.signedness == .unsigned and int_type.bits > 63) @compileError("Too large unsigned int to plot");
+        .int => |int_type| {
+            if (int_type.bits > 64) @panic("Too large int to plot");
+            if (int_type.signedness == .unsigned and int_type.bits > 63) @panic("Too large unsigned int to plot");
             c.___tracy_emit_plot_int(name, value);
         },
-        .Float => |float_type| {
+        .float => |float_type| {
             if (float_type.bits <= 32) {
                 c.___tracy_emit_plot_float(name, value);
             } else if (float_type.bits <= 64) {
