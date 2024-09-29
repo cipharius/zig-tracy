@@ -55,7 +55,7 @@ pub fn build(b: *std.Build) void {
     const tracy_src = b.dependency("tracy_src", .{});
 
     const tracy_module = b.addModule("tracy", .{
-        .root_source_file = .{ .path = "./src/tracy.zig" },
+        .root_source_file = b.path("./src/tracy.zig"),
         .imports = &.{
             .{
                 .name = "tracy-options",
@@ -83,7 +83,7 @@ pub fn build(b: *std.Build) void {
     tracy_client.linkLibCpp();
     tracy_client.addCSourceFile(.{
         .file = tracy_src.path("./public/TracyClient.cpp"),
-        .flags = &.{},
+        .flags = if (target.result.os.tag == .windows) &.{"-fms-extensions"} else &.{},
     });
     inline for (tracy_header_files) |header| {
         tracy_client.installHeader(
