@@ -80,7 +80,11 @@ pub fn build(b: *std.Build) void {
         tracy_client.linkSystemLibrary("dbghelp");
         tracy_client.linkSystemLibrary("ws2_32");
     }
-    tracy_client.linkLibCpp();
+    if (target.result.abi != .msvc) {
+        tracy_client.linkLibCpp();
+    } else {
+        tracy_client.linkLibC();
+    }
     tracy_client.addCSourceFile(.{
         .file = tracy_src.path("./public/TracyClient.cpp"),
         .flags = if (target.result.os.tag == .windows) &.{"-fms-extensions"} else &.{},
