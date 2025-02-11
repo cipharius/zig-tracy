@@ -1,6 +1,9 @@
 const std = @import("std");
+const digits2 = std.fmt.digits2;
 const builtin = @import("builtin");
+
 const options = @import("tracy-options");
+
 const c = @cImport({
     if (options.tracy_enable) @cDefine("TRACY_ENABLE", {});
     if (options.tracy_on_demand) @cDefine("TRACY_ON_DEMAND", {});
@@ -156,12 +159,12 @@ pub inline fn plot(comptime T: type, comptime name: [:0]const u8, value: T) void
 
     const type_info = @typeInfo(T);
     switch (type_info) {
-        .Int => |int_type| {
+        .int => |int_type| {
             if (int_type.bits > 64) @compileError("Too large int to plot");
             if (int_type.signedness == .unsigned and int_type.bits > 63) @compileError("Too large unsigned int to plot");
             c.___tracy_emit_plot_int(name, value);
         },
-        .Float => |float_type| {
+        .float => |float_type| {
             if (float_type.bits <= 32) {
                 c.___tracy_emit_plot_float(name, value);
             } else if (float_type.bits <= 64) {
@@ -340,11 +343,3 @@ pub const TracingAllocator = struct {
         self.parent_allocator.rawFree(buf, buf_align, ret_addr);
     }
 };
-
-fn digits2(value: usize) [2]u8 {
-    return ("0001020304050607080910111213141516171819" ++
-        "2021222324252627282930313233343536373839" ++
-        "4041424344454647484950515253545556575859" ++
-        "6061626364656667686970717273747576777879" ++
-        "8081828384858687888990919293949596979899")[value * 2 ..][0..2].*;
-}
