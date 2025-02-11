@@ -48,6 +48,12 @@ pub inline fn shutdownProfiler() void {
     c.___tracy_shutdown_profiler();
 }
 
+pub inline fn profilerStarted() bool {
+    if (!options.tracy_enable) return false;
+    if (!options.tracy_manual_lifetime) return true;
+    return c.___tracy_profiler_started() != 0;
+}
+
 pub inline fn isConnected() bool {
     if (!options.tracy_enable) return false;
     return c.___tracy_connected() > 0;
