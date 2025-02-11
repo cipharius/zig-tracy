@@ -56,21 +56,18 @@ pub fn build(b: *std.Build) void {
     const tracy_src = b.dependency("tracy_src", .{});
 
     const tracy_module = b.addModule("tracy", .{
-        .root_source_file = b.path("./src/tracy.zig"),
-        .imports = &.{
-            .{
-                .name = "tracy-options",
-                .module = options.createModule(),
-            },
-        },
+        .root_source_file = b.path("src/tracy.zig"),
+        .target = target,
+        .optimize = optimize,
     });
 
+    tracy_module.addImport("tracy-options", options.createModule());
     tracy_module.addIncludePath(tracy_src.path("./public"));
 
     const tracy_client = b.addLibrary(.{
         .linkage = if (shared) .dynamic else .static,
         .name = "tracy",
-        .root_module = b.addModule("tracy", .{
+        .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
         }),

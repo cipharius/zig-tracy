@@ -11,7 +11,7 @@ pub fn main() !void {
     tracy.setThreadName("Main");
     defer tracy.message("Graceful main thread exit");
 
-    try std.posix.sigaction(std.posix.SIG.INT, &.{
+    std.posix.sigaction(std.posix.SIG.INT, &.{
         .handler = .{ .handler = handleSigInt },
         .mask = std.posix.empty_sigset,
         .flags = 0,
