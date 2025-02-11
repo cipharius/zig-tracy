@@ -1,4 +1,5 @@
 const std = @import("std");
+const digits2 = std.fmt.digits2;
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -55,7 +56,7 @@ pub fn build(b: *std.Build) void {
     const tracy_src = b.dependency("tracy_src", .{});
 
     const tracy_module = b.addModule("tracy", .{
-        .root_source_file = .{ .path = "./src/tracy.zig" },
+        .root_source_file = b.path("./src/tracy.zig"),
         .imports = &.{
             .{
                 .name = "tracy-options",
@@ -66,14 +67,13 @@ pub fn build(b: *std.Build) void {
 
     tracy_module.addIncludePath(tracy_src.path("./public"));
 
-    const tracy_client = if (shared) b.addSharedLibrary(.{
+    const tracy_client = b.addLibrary(.{
+        .linkage = if (shared) .dynamic else .static,
         .name = "tracy",
-        .target = target,
-        .optimize = optimize,
-    }) else b.addStaticLibrary(.{
-        .name = "tracy",
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.addModule("tracy", .{
+            .target = target,
+            .optimize = optimize,
+        }),
     });
 
     if (target.result.os.tag == .windows) {
@@ -92,59 +92,51 @@ pub fn build(b: *std.Build) void {
         );
     }
     if (tracy_enable)
-        tracy_client.defineCMacro("TRACY_ENABLE", null);
+        tracy_client.root_module.addCMacro("TRACY_ENABLE", "1");
     if (tracy_on_demand)
-        tracy_client.defineCMacro("TRACY_ON_DEMAND", null);
+        tracy_client.root_module.addCMacro("TRACY_ON_DEMAND", "1");
     if (tracy_callstack) |depth| {
-        tracy_client.defineCMacro("TRACY_CALLSTACK", "\"" ++ digits2(depth) ++ "\"");
+        tracy_client.root_module.addCMacro("TRACY_CALLSTACK", "\"" ++ digits2(depth) ++ "\"");
     }
     if (tracy_no_callstack)
-        tracy_client.defineCMacro("TRACY_NO_CALLSTACK", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_CALLSTACK", "1");
     if (tracy_no_callstack_inlines)
-        tracy_client.defineCMacro("TRACY_NO_CALLSTACK_INLINES", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_CALLSTACK_INLINES", "1");
     if (tracy_only_localhost)
-        tracy_client.defineCMacro("TRACY_ONLY_LOCALHOST", null);
+        tracy_client.root_module.addCMacro("TRACY_ONLY_LOCALHOST", "1");
     if (tracy_no_broadcast)
-        tracy_client.defineCMacro("TRACY_NO_BROADCAST", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_BROADCAST", "1");
     if (tracy_only_ipv4)
-        tracy_client.defineCMacro("TRACY_ONLY_IPV4", null);
+        tracy_client.root_module.addCMacro("TRACY_ONLY_IPV4", "1");
     if (tracy_no_code_transfer)
-        tracy_client.defineCMacro("TRACY_NO_CODE_TRANSFER", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_CODE_TRANSFER", "1");
     if (tracy_no_context_switch)
-        tracy_client.defineCMacro("TRACY_NO_CONTEXT_SWITCH", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_CONTEXT_SWITCH", "1");
     if (tracy_no_exit)
-        tracy_client.defineCMacro("TRACY_NO_EXIT", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_EXIT", "1");
     if (tracy_no_sampling)
-        tracy_client.defineCMacro("TRACY_NO_SAMPLING", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_SAMPLING", "1");
     if (tracy_no_verify)
-        tracy_client.defineCMacro("TRACY_NO_VERIFY", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_VERIFY", "1");
     if (tracy_no_vsync_capture)
-        tracy_client.defineCMacro("TRACY_NO_VSYNC_CAPTURE", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_VSYNC_CAPTURE", "1");
     if (tracy_no_frame_image)
-        tracy_client.defineCMacro("TRACY_NO_FRAME_IMAGE", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_FRAME_IMAGE", "1");
     if (tracy_no_system_tracing)
-        tracy_client.defineCMacro("TRACY_NO_SYSTEM_TRACING", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_SYSTEM_TRACING", "1");
     if (tracy_delayed_init)
-        tracy_client.defineCMacro("TRACY_DELAYED_INIT", null);
+        tracy_client.root_module.addCMacro("TRACY_DELAYED_INIT", "1");
     if (tracy_manual_lifetime)
-        tracy_client.defineCMacro("TRACY_MANUAL_LIFETIME", null);
+        tracy_client.root_module.addCMacro("TRACY_MANUAL_LIFETIME", "1");
     if (tracy_fibers)
-        tracy_client.defineCMacro("TRACY_FIBERS", null);
+        tracy_client.root_module.addCMacro("TRACY_FIBERS", "1");
     if (tracy_no_crash_handler)
-        tracy_client.defineCMacro("TRACY_NO_CRASH_HANDLER", null);
+        tracy_client.root_module.addCMacro("TRACY_NO_CRASH_HANDLER", "1");
     if (tracy_timer_fallback)
-        tracy_client.defineCMacro("TRACY_TIMER_FALLBACK", null);
+        tracy_client.root_module.addCMacro("TRACY_TIMER_FALLBACK", "1");
     if (shared and target.result.os.tag == .windows)
-        tracy_client.defineCMacro("TRACY_EXPORTS", null);
+        tracy_client.root_module.addCMacro("TRACY_EXPORTS", "1");
     b.installArtifact(tracy_client);
-}
-
-fn digits2(value: usize) [2]u8 {
-    return ("0001020304050607080910111213141516171819" ++
-        "2021222324252627282930313233343536373839" ++
-        "4041424344454647484950515253545556575859" ++
-        "6061626364656667686970717273747576777879" ++
-        "8081828384858687888990919293949596979899")[value * 2 ..][0..2].*;
 }
 
 const tracy_header_files = [_][2][]const u8{
