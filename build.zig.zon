@@ -12,8 +12,8 @@
     },
     .dependencies = .{
         .tracy_src = .{
-            .url = "https://github.com/wolfpld/tracy/archive/refs/tags/v0.10.tar.gz",
-            .hash = "12202aac930cebaf2b57f443cacc2483478580a72f1316b4f0a720ddd91246fce69d",
+            .url = "git+https://github.com/wolfpld/tracy?tag=v0.11.1#8b3638e8e284a352fe9b6bf9c8c4e705500a89ed",
+            .hash = "122048e7d2b7fda0ff8c2f461bd6c94150a8c9b59d0469256c09179e3211ac576feb",
         },
     },
 }
