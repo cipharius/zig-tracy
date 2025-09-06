@@ -1,10 +1,10 @@
 const std = @import("std");
 const tracy = @import("tracy");
 
-var finalise_threads = std.atomic.Value(bool).init(false);
+var finalise_threads: std.Thread.ResetEvent = .{};
 
 fn handleSigInt(_: c_int) callconv(.C) void {
-    finalise_threads.store(true, .release);
+    finalise_threads.set();
 }
 
 pub fn main() !void {
@@ -20,7 +20,7 @@ pub fn main() !void {
     const other_thread = try std.Thread.spawn(.{}, otherThread, .{});
     defer other_thread.join();
 
-    while (!finalise_threads.load(.acquire)) {
+    while (!finalise_threads.isSet()) {
         tracy.frameMark();
 
         const zone = tracy.initZone(@src(), .{ .name = "Important work" });
@@ -46,7 +46,7 @@ fn otherThread() void {
     const stdin = std.io.getStdIn().reader();
     const stdout = std.io.getStdOut().writer();
 
-    while (!finalise_threads.load(.acquire)) {
+    while (!finalise_threads.isSet()) {
         const zone = tracy.initZone(@src(), .{ .name = "IO loop" });
         defer zone.deinit();
 
