@@ -86,12 +86,7 @@ pub fn build(b: *std.Build) void {
         .file = tracy_src.path("./public/TracyClient.cpp"),
         .flags = if (target.result.os.tag == .windows) &.{"-fms-extensions"} else &.{},
     });
-    inline for (tracy_header_files) |header| {
-        tracy_client.installHeader(
-            tracy_src.path("public/" ++ header),
-            header,
-        );
-    }
+    tracy_client.installHeadersDirectory(tracy_src.path("public"), "", .{});
     if (tracy_enable)
         tracy_client.root_module.addCMacro("TRACY_ENABLE", "1");
     if (tracy_on_demand)
@@ -139,52 +134,3 @@ pub fn build(b: *std.Build) void {
         tracy_client.root_module.addCMacro("TRACY_EXPORTS", "1");
     b.installArtifact(tracy_client);
 }
-const tracy_header_files = [_][]const u8{
-    "tracy/TracyC.h",
-    "tracy/Tracy.hpp",
-    "tracy/TracyCUDA.hpp",
-    "tracy/TracyD3D11.hpp",
-    "tracy/TracyD3D12.hpp",
-    "tracy/TracyLua.hpp",
-    "tracy/TracyOpenCL.hpp",
-    "tracy/TracyOpenGL.hpp",
-    "tracy/TracyVulkan.hpp",
-
-    "client/TracyArmCpuTable.hpp",
-    "client/TracyCallstack.h",
-    "client/TracyCallstack.hpp",
-    "client/tracy_concurrentqueue.h",
-    "client/TracyCpuid.hpp",
-    "client/TracyDebug.hpp",
-    "client/TracyDxt1.hpp",
-    "client/TracyFastVector.hpp",
-    "client/TracyKCore.hpp",
-    "client/TracyLock.hpp",
-    "client/TracyProfiler.hpp",
-    "client/TracyRingBuffer.hpp",
-    "client/tracy_rpmalloc.hpp",
-    "client/TracyScoped.hpp",
-    "client/tracy_SPSCQueue.h",
-    "client/TracyStringHelpers.hpp",
-    "client/TracySysPower.hpp",
-    "client/TracySysTime.hpp",
-    "client/TracySysTrace.hpp",
-    "client/TracyThread.hpp",
-
-    "common/TracyAlign.hpp",
-    "common/TracyAlloc.hpp",
-    "common/TracyApi.h",
-    "common/TracyColor.hpp",
-    "common/TracyForceInline.hpp",
-    "common/TracyMutex.hpp",
-    "common/TracyProtocol.hpp",
-    "common/TracyQueue.hpp",
-    "common/TracySocket.hpp",
-    "common/TracyStackFrames.hpp",
-    "common/TracySystem.hpp",
-    "common/TracyVersion.hpp",
-    "common/TracyWinFamily.hpp",
-    "common/TracyYield.hpp",
-    "common/tracy_lz4.hpp",
-    "common/tracy_lz4hc.hpp",
-};
