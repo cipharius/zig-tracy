@@ -86,7 +86,9 @@ pub fn build(b: *std.Build) void {
         .file = tracy_src.path("./public/TracyClient.cpp"),
         .flags = if (target.result.os.tag == .windows) &.{"-fms-extensions"} else &.{},
     });
-    tracy_client.installHeadersDirectory(tracy_src.path("public"), "", .{});
+    tracy_client.installHeadersDirectory(tracy_src.path("public"), "", .{
+        .include_extensions = &.{".h", ".hpp"},
+    });
     if (tracy_enable)
         tracy_client.root_module.addCMacro("TRACY_ENABLE", "1");
     if (tracy_on_demand)
