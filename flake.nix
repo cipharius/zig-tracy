@@ -2,46 +2,32 @@
   description = "zig-tracy development environment";
 
   inputs = {
-    zig-source = {
-      url = "https://ziglang.org/builds/zig-linux-x86_64-0.12.0-dev.3522+b88ae8dbd.tar.xz";
-      flake = false;
-    };
+    flake-utils.url = "github:numtide/flake-utils";
+    zig-overlay.url = "github:mitchellh/zig-overlay";
   };
 
   outputs = {
     self,
     nixpkgs,
-    zig-source
+    flake-utils,
+    zig-overlay
   }:
   let
-    default_system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.${default_system};
-    zig_0_12_0_rc = pkgs.stdenv.mkDerivation rec {
-      pname = "zig";
-      version = "0.12.0-dev.3522+b88ae8dbd";
-      src = zig-source.outPath;
+    # https://github.com/mitchellh/zig-overlay/blob/a13f8e3f83ce51411d079579f28acb20472443f8/flake.nix#L21
+    systems = builtins.attrNames zig-overlay.packages;
+  in
+    flake-utils.lib.eachSystem systems (
+      system: let
+        pkgs = nixpkgs.legacyPackages.${system};
+        zigpkgs = zig-overlay.packages.${system};
+      in rec {
+        devShells.default = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [
+            zigpkgs."0.15.2"
 
-      installPhase = ''
-        mkdir -p "$out/bin"
-        cp zig "$out/bin"
-        cp -r lib "$out"
-        cp -r doc "$out"
-      '';
-
-      meta = with pkgs.lib; {
-        homepage = "https://ziglang.org/";
-        description = "General-purpose programming language and toolchain for maintaining robust, optimal, and reusable software";
-        license = licenses.mit;
-        platforms = platforms.unix;
-      };
-    };
-  in {
-    devShell.${default_system} = pkgs.mkShell {
-      nativeBuildInputs = [
-        zig_0_12_0_rc
-        pkgs.lldb_16
-      ];
-    };
-  };
+            lldb
+          ];
+        };
+      }
+    );
 }
-

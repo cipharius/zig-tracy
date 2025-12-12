@@ -3,7 +3,7 @@ const tracy = @import("tracy");
 
 var finalise_threads: std.Thread.ResetEvent = .{};
 
-fn handleSigInt(_: c_int) callconv(.C) void {
+export fn handleSigInt(_: c_int) void {
     finalise_threads.set();
 }
 
@@ -13,7 +13,7 @@ pub fn main() !void {
 
     std.posix.sigaction(std.posix.SIG.INT, &.{
         .handler = .{ .handler = handleSigInt },
-        .mask = std.posix.empty_sigset,
+        .mask = std.posix.sigemptyset(),
         .flags = 0,
     }, null);
 
@@ -25,7 +25,7 @@ pub fn main() !void {
 
         const zone = tracy.initZone(@src(), .{ .name = "Important work" });
         defer zone.deinit();
-        std.time.sleep(100);
+        std.Thread.sleep(100);
     }
 }
 
@@ -39,26 +39,31 @@ fn otherThread() void {
     defer arena.deinit();
 
     var tracing_allocator = tracy.TracingAllocator.initNamed("arena", arena.allocator());
+    const allocator = tracing_allocator.allocator();
 
-    var stack = std.ArrayList(u8).init(tracing_allocator.allocator());
-    defer stack.deinit();
+    var stack = std.ArrayList(u8).empty;
+    defer stack.deinit(allocator);
 
-    const stdin = std.io.getStdIn().reader();
-    const stdout = std.io.getStdOut().writer();
+    const stdin = std.fs.File.stdin().deprecatedReader();
+
+    var stdout_buffer: [1024]u8 = undefined;
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    const stdout = &stdout_writer.interface;
 
     while (!finalise_threads.isSet()) {
         const zone = tracy.initZone(@src(), .{ .name = "IO loop" });
         defer zone.deinit();
 
         stdout.print("Enter string: ", .{}) catch break;
+        stdout.flush() catch break;
 
         const stream_zone = tracy.initZone(@src(), .{ .name = "Writer.streamUntilDelimiter" });
-        stdin.streamUntilDelimiter(stack.writer(), '\n', null) catch break;
+        stdin.streamUntilDelimiter(stack.writer(allocator), '\n', null) catch break;
         stream_zone.deinit();
 
         const toowned_zone = tracy.initZone(@src(), .{ .name = "ArrayList.toOwnedSlice" });
-        const str = stack.toOwnedSlice() catch break;
-        defer tracing_allocator.allocator().free(str);
+        const str = stack.toOwnedSlice(allocator) catch break;
+        defer allocator.free(str);
         toowned_zone.deinit();
 
         const reverse_zone = tracy.initZone(@src(), .{ .name = "std.mem.reverse" });
